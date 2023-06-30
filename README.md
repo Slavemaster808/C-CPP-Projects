@@ -1,1 +1,1 @@
-# C-CPP-Projects
+These are C/CPP projects.

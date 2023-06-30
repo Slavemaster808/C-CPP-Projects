@@ -1,0 +1,20 @@
+CC=gcc
+CFLAGS=-Wall -Werror -Wextra
+BIN=../../materials/build/s21_cat/app
+
+all: s21_cat
+
+s21_cat: s21_cat.o main.o
+	$(CC) $(CFLAGS) -o s21_cat s21_cat.o main.o
+
+s21_cat.o: s21_cat.c
+	$(CC) $(CFLAGS) -c s21_cat.c
+
+main.o: main.c
+	$(CC) $(CFLAGS) -c main.c
+
+clean:
+	rm -rf *.o s21_cat
+
+run:
+	./app

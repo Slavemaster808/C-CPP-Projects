@@ -1,0 +1,27 @@
+#ifndef S21_GREP_H
+#define S21_GREP_H
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define BUFF_SIZE 512
+
+void outputWithNoFlags(int argc, int n, int check, char flag, char **argv);
+
+void outputWithFlags(int argc, int n, int check, char flag, char **argv);
+
+void ignoreCases(int argc, int n, int check, char **argv);
+
+void countLines(int argc, int n, int check, char **argv);
+
+void invertMatch(int argc, int n, int check, char **argv);
+
+void numberLine(int argc, int n, int check, char **argv);
+
+void matchingFiles(int argc, int check, char **argv);
+
+void matchedParts(int argc, int n, int check, char **argv);
+
+void printLines(char *buff, char *line);
+
+#endif
