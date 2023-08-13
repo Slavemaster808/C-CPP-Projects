@@ -1,5 +1,6 @@
 #ifndef FUNCS_H
 #define FUNCS_H
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <string>
@@ -10,10 +11,17 @@
 #define PUD_UP 0
 #define PUD_DOWN 1
 
+static const std::string varGpioRoot = "/sys/class/gpio";
+
 static const std::map<std::string, std::string> staticModuleMap = {
     {"ROCK", "ROCK"},       {"BOARD", "BOARD"}, {"BCM", "BCM"},
     {"OUT", "out"},         {"IN", "in"},       {"RISING", "rising"},
     {"FALLING", "falling"}, {"BOTH", "both"},   {"VERSION", "0.6.3"}};
+
+static const std::map<std::string, std::string> rpiInfo = {
+    {"PI_VERSION", "3"},      {"RAM", "1024M"},
+    {"REVISION", "a22082"},   {"TYPE", "Pi 3 Model B"},
+    {"PROCESSOR", "BCM2837"}, {"MANUFACTURES", "Embest"}};
 
 static const std::vector<int> rock64ValidChannels = {
     27, 32, 33, 34, 35, 36, 37, 38, 60, 64, 65, 67, 68,  69,  76,  79,  80,
@@ -48,6 +56,18 @@ static std::string rockMode = "ROCK64";
 
 static int warningMode = 1;
 
+class PWM {
+ private:
+  double freq;
+  int gpio;
+  int state;
+
+ public:
+  PWM(int channel, double frequency);
+  void setFrequency(double frequency);
+  void start(double dutyCycle, int pwmPrecision = HIGH);
+};
+
 void setMode(std::string mode);
 
 void setRock(std::string rock);
@@ -55,5 +75,11 @@ void setRock(std::string rock);
 std::string getMode(void);
 
 int getGpioNumber(int channel);
+
+std::string gpioFunction(int channel);
+
+void setWarning(int state = 1);
+
+int validateDirection(int channel, std::string validationType = "both");
 
 #endif  // FUNCS_H
