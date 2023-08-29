@@ -101,7 +101,8 @@ std::string gpioFunction(int channel) {
   }
 
   std::string direction;
-  file >> direction;
+  // file >> direction;
+  std::getline(file, direction);
   file.close();
 
   if (direction == "i") {
@@ -138,7 +139,8 @@ int validateDirection(int channel, std::string validationType) {
     if (!file) {
       direction = "none";
     } else {
-      file >> direction;
+      // file >> direction;
+      std::getline(file, direction);
     }
     file.close();
     if (validationType == "input" && direction != "i") {
@@ -162,4 +164,137 @@ int validateDirection(int channel, std::string validationType) {
                  "following: input, output, both";
   }
   return -1;
+}
+
+void setup(int channel, std::string direction, std::string pull_up_down,
+           std::string initial) {
+  std::vector<int> channelVec;
+
+  if (typeid(channel) == typeid(int)) {
+    channelVec.push_back(channel);
+  }
+
+  for (size_t index = 0; index < channelVec.size(); index++) {
+    int channelInt = getGpioNumber(channelVec[index]);
+    if (channelInt == 0) {
+      return;
+    }
+    std::string varGpioFilepath =
+        varGpioRoot + "/gpio" + std::to_string(channelInt) + "value";
+    bool varGpioExist = access(varGpioFilepath.c_str(), F_OK) == 0;
+    if (varGpioExist) {
+      if (warningMode == 1) {
+        std::cout << "This channel (" << gpioMode << " " << channelVec[index]
+                  << ") is already in use, continuing anyway. Use "
+                     "GPIO.setwarnings(False) to disable warnings.";
+      }
+    } else {
+      try {
+        varGpioFilepath = varGpioRoot + "/export";
+        std::ofstream file(varGpioFilepath);
+        file << std::to_string(channelInt);
+        file.close();
+      } catch (...) {
+        std::cout << "Error: Unable to setup GPIO";
+        return;
+      }
+    }
+    try {
+      varGpioFilepath =
+          varGpioRoot + "/gpio" + std::to_string(channelInt) + "/direction";
+      std::ofstream file(varGpioFilepath);
+      file << direction;
+      file.close();
+    } catch (...) {
+      std::cout << "Error: Unable to setup GPIO";
+      return;
+    }
+    if (direction == "out") {
+      try {
+        varGpioFilepath =
+            varGpioRoot + "/gpio" + std::to_string(channelInt) + "/value";
+        std::ofstream file(varGpioFilepath);
+        if (initial != "") {
+          if (initial.find(",") != std::string::npos) {
+            std::vector<std::string> initialValues;
+            char* token = strtok(const_cast<char*>(initial.c_str()), ",");
+            while (token != NULL) {
+              initialValues.push_back(token);
+              token = strtok(NULL, ",");
+            }
+            if (index < initialValues.size()) {
+              file << initialValues[index];
+            }
+          } else {
+            file << initial;
+          }
+        }
+        file.close();
+      } catch (...) {
+        std::cout << "Error: Unable to setup GPIO initial state";
+      }
+    }
+    if (direction == "in") {
+      try {
+        varGpioFilepath =
+            varGpioRoot + "/gpio" + std::to_string(channelInt) + "/active_low";
+        std::ofstream file(varGpioFilepath);
+        file << pull_up_down;
+        file.close();
+      } catch (...) {
+        std::cout << "Error: Unable to set internal pullup registor state";
+      }
+    }
+  }
+}
+
+void output(int channel, std::vector<int> value) {
+  std::vector<int> channelVec;
+
+  if (typeid(channel) == typeid(int)) {
+    channelVec.push_back(channel);
+  }
+
+  for (size_t index = 0; index < channelVec.size(); index++) {
+    int channel_int = getGpioNumber(channelVec[index]);
+    if (channel_int == 0) {
+      return;
+    }
+    if (validateDirection(channelVec[index], "output") == 0) {
+      return;
+    }
+    try {
+      std::string var_gpio_filepath =
+          varGpioRoot + "/gpio" + std::to_string(channel_int) + "/value";
+      std::ofstream file(var_gpio_filepath);
+      if (typeid(value) != typeid(int)) {
+        file << std::to_string((value[index]));
+      }
+    } catch (...) {
+      std::cout << "Error: Unable to set GPIO output state";
+    }
+  }
+}
+
+std::string input(int channel) {
+  int channelInt = getGpioNumber(channel);
+
+  if (channelInt == -1) {
+    return "";
+  }
+  if (validateDirection(channel, "both") == 0) {
+    return "";
+  }
+
+  try {
+    std::string varGpioFilePath =
+        varGpioRoot + "/gpio" + std::to_string(channelInt) + "value";
+    std::ifstream file(varGpioFilePath);
+    std::string value;
+    std::getline(file, value);
+    return value;
+  } catch (...) {
+    std::cout << "Error: Unable to get GPIO value";
+  }
+  return "";
 }

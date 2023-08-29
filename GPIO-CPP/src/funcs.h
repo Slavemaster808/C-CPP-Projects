@@ -1,9 +1,13 @@
 #ifndef FUNCS_H
 #define FUNCS_H
+#include <unistd.h>
+
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <string>
+#include <typeinfo>
 #include <vector>
 
 #define HIGH 1
@@ -81,5 +85,15 @@ std::string gpioFunction(int channel);
 void setWarning(int state = 1);
 
 int validateDirection(int channel, std::string validationType = "both");
+
+void output(int channel, std::vector<int> value);
+
+void setup(int channel, std::string direction, int pull_up_down = PUD_DOWN,
+           int initial = LOW);
+
+std::string input(int channel);
+
+void setup(int channel, std::string direction,
+           std::string pull_up_down = "PUD_DOWN", std::string initial = "LOW");
 
 #endif  // FUNCS_H
