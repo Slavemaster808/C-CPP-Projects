@@ -88,12 +88,16 @@ int validateDirection(int channel, std::string validationType = "both");
 
 void output(int channel, std::vector<int> value);
 
-void setup(int channel, std::string direction, int pull_up_down = PUD_DOWN,
-           int initial = LOW);
+// void setup(int channel, std::string direction, int pull_up_down = PUD_DOWN,
+//            int initial = LOW);
 
 std::string input(int channel);
 
 void setup(int channel, std::string direction,
            std::string pull_up_down = "PUD_DOWN", std::string initial = "LOW");
+
+bool wait_for_edge(int channel, std::string edge,
+                   std::string bouncetime = "none",
+                   std::string timeout = "none");
 
 #endif  // FUNCS_H

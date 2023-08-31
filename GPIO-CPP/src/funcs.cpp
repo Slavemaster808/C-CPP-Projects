@@ -298,3 +298,80 @@ std::string input(int channel) {
   }
   return "";
 }
+
+bool wait_for_edge(int channel, std::string edge, std::string bouncetime,
+                   std::string timeout) {
+  int channelInt = getGpioNumber(channel);
+
+  if (channelInt == -1) {
+    return false;
+  }
+
+  if (!validateDirection(channel, "input")) {
+    return false;
+  }
+
+  if (edge != "RISING" && edge != "FALLING" && edge != "BOTH") {
+    std::cout << "The edge must be set to \"RISING\", \"FALLING\", or \"BOTH\"";
+    return false;
+  }
+
+  if (bouncetime != "none" && std::stoi(bouncetime) <= 0) {
+    std::cout << "Bouncetime must be greater than 0";
+    return false;
+  }
+
+  if (timeout != "none" && std::stoi(timeout) <= 0) {
+    std::cout << "Timeout must be greater than 0" << std::endl;
+    return false;
+  }
+
+  try {
+    std::string varGpioFilepath =
+        varGpioRoot + "/gpio" + std::to_string(channelInt) + "/edge";
+    std::ofstream file(varGpioFilepath);
+    file << edge;
+    file.close();
+  } catch (...) {
+    std::cout << "Error: Unable to set GPIO edge state";
+    return false;
+  }
+
+  std::string originalValue;
+  try {
+    std::string varGpioFilepath =
+        varGpioRoot + "/gpio" + std::to_string(channelInt) + "/value";
+    std::ifstream file(varGpioFilepath);
+    std::getline(file, originalValue);
+    file.close();
+  } catch (...) {
+    std::cout << "Error: Unable to get GPIO value";
+    return false;
+  }
+
+  double timeoutSecs = (timeout != "none") ? std::stod(timeout) / 1000.0 : -1.0;
+  double bouncetimeSecs =
+      (bouncetime != "none") ? std::stod(bouncetime) / 1000.0 : -1.0;
+  while (true) {
+    std::string varGpioFilepath =
+        varGpioRoot + "/gpio" + std::to_string(channelInt) + "/value";
+    std::ifstream file(varGpioFilepath);
+    std::string newValue;
+    std::getline(file, newValue);
+    file.close();
+
+    if (newValue != originalValue) {
+      if (bouncetimeSecs != -1.0) {
+        usleep(bouncetimeSecs * 1000000);
+      }
+      return true;
+    }
+    usleep(10000);
+    if (timeoutSecs != -1.0) {
+      timeoutSecs -= 0.01;
+      if (timeoutSecs <= 0.0) {
+        return NULL;
+      }
+    }
+  }
+}
