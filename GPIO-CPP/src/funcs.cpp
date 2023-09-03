@@ -1,5 +1,50 @@
 #include "funcs.h"
 
+const std::string varGpioRoot = "/sys/class/gpio";
+
+const std::map<std::string, std::string> staticModuleMap = {
+    {"ROCK", "ROCK"},       {"BOARD", "BOARD"}, {"BCM", "BCM"},
+    {"OUT", "out"},         {"IN", "in"},       {"RISING", "rising"},
+    {"FALLING", "falling"}, {"BOTH", "both"},   {"VERSION", "0.6.3"}};
+
+const std::map<std::string, std::string> rpiInfo = {
+    {"PI_VERSION", "3"},      {"RAM", "1024M"},
+    {"REVISION", "a22082"},   {"TYPE", "Pi 3 Model B"},
+    {"PROCESSOR", "BCM2837"}, {"MANUFACTURES", "Embest"}};
+
+const std::vector<int> rock64ValidChannels = {
+    27, 32, 33, 34, 35, 36, 37, 38, 60, 64, 65, 67, 68,  69,  76,  79,  80,
+    81, 82, 83, 84, 85, 86, 87, 88, 89, 96, 97, 98, 100, 101, 102, 103, 104};
+
+const std::vector<int> boardToRock64 = {
+    0,   0,  0,   89, 0,  88, 0,   60, 64,  0, 65, 0,  67, 0,  0,  100,
+    101, 0,  102, 97, 0,  98, 103, 96, 104, 0, 76, 68, 69, 0,  0,  0,
+    38,  32, 0,   33, 37, 34, 36,  0,  35,  0, 0,  81, 82, 87, 83, 0,
+    0,   80, 79,  85, 84, 27, 86,  0,  0,   0, 0,  0,  0,  89, 88};
+
+const std::vector<int> bcmToRock64 = {
+    68, 69, 89, 88, 81, 87, 83, 76, 104, 98,  97,  96,  38, 32,
+    64, 65, 37, 80, 67, 33, 36, 35, 100, 101, 102, 103, 34, 82};
+
+const std::vector<int> rockPro64ValidChannels = {
+    52,  53,  152, 54,  50, 33,  48,  39, 41, 43, 155, 156, 125, 122,
+    121, 148, 147, 120, 36, 149, 153, 42, 45, 44, 124, 126, 123, 127};
+
+const std::vector<int> boardToRockPro64 = {
+    0,  0,   0,  52,  0,   53,  0, 152, 148, 0,   147, 54, 120, 50,
+    0,  33,  36, 0,   149, 48,  0, 39,  153, 41,  42,  0,  45,  43,
+    44, 155, 0,  156, 124, 125, 0, 122, 126, 121, 123, 0,  127};
+
+const std::vector<int> bcmToRockPro64 = {
+    43,  44,  52,  53, 152, 155, 156, 45,  42, 39, 48,  41,  124, 125,
+    148, 147, 124, 54, 120, 122, 123, 127, 33, 36, 149, 153, 121, 50};
+
+std::string gpioMode = NULL;
+
+std::string rockMode = "ROCK64";
+
+int warningMode = 1;
+
 void setMode(std::string mode) {
   int check = 0;
 
