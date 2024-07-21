@@ -1,4 +1,0 @@
-/Users/egorbadjanov/projects/C-CPP-Projects/GPIO-CPP/build/CMakeFiles/gpio.dir
-/Users/egorbadjanov/projects/C-CPP-Projects/GPIO-CPP/build/CMakeFiles/funcslib.dir
-/Users/egorbadjanov/projects/C-CPP-Projects/GPIO-CPP/build/CMakeFiles/ALL_BUILD.dir
-/Users/egorbadjanov/projects/C-CPP-Projects/GPIO-CPP/build/CMakeFiles/ZERO_CHECK.dir

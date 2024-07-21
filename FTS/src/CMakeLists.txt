@@ -1,0 +1,5 @@
+add_subdirectory(app)
+add_subdirectory(libfts)
+add_subdirectory(libindexer)
+add_subdirectory(libsearcher)
+add_subdirectory(libutils)

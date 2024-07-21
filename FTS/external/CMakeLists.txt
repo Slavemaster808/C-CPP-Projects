@@ -1,0 +1,6 @@
+add_subdirectory(cxxopts)
+add_subdirectory(gtest)
+add_subdirectory(nlohmann)
+add_subdirectory(picosha2)
+add_subdirectory(rapidcsv)
+add_subdirectory(replxx)
